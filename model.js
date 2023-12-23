@@ -1,0 +1,61 @@
+const mongoose = require('mongoose');
+const { Visit } = require('../model/user'); 
+
+mongoose.connect('mongodb+srv://zhaotian:2ozMtEmv8cIhvGS9@cluster0.azxhyf5.mongodb.net/vms?retryWrites=true&w=majority',{   //stored to 'vms'
+    useNewUrlParser: true, 
+    useUnifiedTopology: true
+});
+
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "connection error:"));
+db.once("open",()=>{
+    console.log("Database connected");
+})
+
+
+
+
+
+
+// //function to randomly generate a number
+// function getRandomPurpose() {
+//     const purposes = ['Meeting', 'Interview', 'Appointment', 'Event', 'Visit'];
+//     const randomIndex = Math.floor(Math.random() * purposes.length);
+//     const randomPurpose = purposes[randomIndex];
+//     return randomPurpose;
+// }
+
+// function getRandomPhoneNumber() {
+//     return Math.floor(Math.random() * 9000000000) + 1000000000;
+// }
+
+// function getRandomVisitTime() {
+//     const startTimestamp = new Date('2022-01-01').getTime();
+//     const endTimestamp = new Date().getTime();
+//     const randomTimestamp = startTimestamp + Math.random() * (endTimestamp - startTimestamp);
+//     return new Date(randomTimestamp);
+// }
+
+// const seedDb = async()=>{
+//     try {
+//         for (let i = 0; i < 5; i++) {
+//             const randomVisit = new Visit({
+//                 purposeOfVisit: '${getRandomPurpose()}',
+//                 phoneNumber: getRandomPhoneNumber(),
+//                 visitTime: getRandomVisitTime(),
+//                 // Add more properties as needed
+//             });
+//             console.log(randomVisit);
+//             await randomVisit.save();
+//         }
+    
+//         console.log('Random visits saved to MongoDB');
+//     } catch (error) {
+//         console.error('Error saving random visits to MongoDB:', error);
+//     }    
+// }
+
+
+// seedDb().then(()=>{
+//     mongoose.connection.close();
+// })
