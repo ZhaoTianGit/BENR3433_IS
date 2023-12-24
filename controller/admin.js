@@ -23,13 +23,13 @@ module.exports.registerHost = async(req,res)=>{
             return res.status(400).json({ error: 'Username already exists' });
         }
 
-        // Hash the password using bcrypt
-        const hashedPassword = await bcrypt.hash(password, 10);
+        // // Hash the password using bcrypt
+        // const hashedPassword = await bcrypt.hash(password, 10);
 
         // Create a new host
         const newHost = new User({
             username,
-            password:hashedPassword,
+            password,
             email,
             phoneNumber,
             category: 'host', // Assuming 'host' is the category for hosts

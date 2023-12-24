@@ -93,7 +93,7 @@ const options = {
 * @swagger
 * /register:
 *  post:
-*      tags: [User]
+*      tags: [Admin]
 *      summary: registration for new user
 *      description: this api fetch data from mongodb
 *      requestBody:
@@ -606,7 +606,7 @@ app.post('/createvisitor',authenticateToken,async(req,res)=>{
  * @swagger
  *  /createpass:
  *    post:
- *      tags: [Users]
+ *      tags: [User]
  *      description: This api is used for creating visitor pass
  *      summary: Create visitor pass
  *      security:
@@ -646,6 +646,45 @@ app.post('/createvisitor',authenticateToken,async(req,res)=>{
  * 
  */
 
+//create pass function
+app.post('/createpass',authenticateToken,async(req,res)=>{
+  try {
+    const {purposeOfVisit,phoneNumber}=req.body
+    const request ={
+      purposeOfVisit: purposeOfVisit,
+      phoneNumber: phoneNumber
+    }
+    const vpass = await Pass.create(request)
+    await Visitor.updateOne({phoneNumber:req.body.phoneNumber},{$push:{visitor_pass_id:vpass._id}})
+    res.json({vpass:vpass,message:"visitor pass created successfully"})
+  } catch (error) {
+    console.log(error.message);
+        res.status(500).json({message: error.message})
+  }
+})
+
+//create pass schema
+/**
+ * @swagger
+ *  components:
+ *        schema:
+ *            vpass:
+ *                type: object
+ *            properties:
+ *                purposeOfVisit:
+ *                type: string
+ *            phoneNumber:
+ *                type: number
+ *            _id:
+ *                type: string
+ *                format: uuid
+ *            createdAt:
+ *                type: string
+ *                format: date-time
+ *            updatedAt:
+ *                type: string
+ *                format: date-time
+ */ 
 
 
 
