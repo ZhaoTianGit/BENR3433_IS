@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
 const port = process.env.PORT || 3000;
@@ -105,61 +106,61 @@ app.get('/', (req, res) => {
 */
 
 //register new user
-app.post('/register', async(req, res) => {
-   try {
-       const { username, password, name} = req.body;
-       const a = await User.findOne({'username':req.body.username})
-       if(a == null){
-         const request ={
-           username: username,
-           password: password,
-           name: name,
-           role: "user",
-           login_status: false
-         }  
-         const user = await User.create(request)
-         const responsemessage= 'User registered successfully';
-         res.status(200).json({user:user, message: responsemessage})}
-       else{
-           res.status(409).send('Username has been taken'); // 409 = there's a conflict that needs to be resolved before the request can be successfully processed
-       }        
-   } catch (error) {
-       console.log(error.message);
-       res.status(500).json({message: error.message})
-   }
-})
+// app.post('/register', async(req, res) => {
+//    try {
+//        const { username, password, name} = req.body;
+//        const a = await User.findOne({'username':req.body.username})
+//        if(a == null){
+//          const request ={
+//            username: username,
+//            password: password,
+//            name: name,
+//            role: "user",
+//            login_status: false
+//          }  
+//          const user = await User.create(request)
+//          const responsemessage= 'User registered successfully';
+//          res.status(200).json({user:user, message: responsemessage})}
+//        else{
+//            res.status(409).send('Username has been taken'); // 409 = there's a conflict that needs to be resolved before the request can be successfully processed
+//        }        
+//    } catch (error) {
+//        console.log(error.message);
+//        res.status(500).json({message: error.message})
+//    }
+// })
 
-/**
-* @swagger
-*  components:
-*      schema:
-*          registerinfo:
-*              type: object
-*              properties:
-*                  username:
-*                      type: string
-*                  password:
-*                      type: string
-*                  name:
-*                      type: string
-* 
-*          User:
-*              type: object
-*              properties:
-*                  username:
-*                      type: string
-*                  password:
-*                      type: string
-*                  name:
-*                      type: string 
-*                  role:
-*                      type: string
-*                  visitor_id:
-*                      type: string
-*                      format: uuid
-*                  login_status:
-*                      type: boolean
-*/
+// /**
+// * @swagger
+// *  components:
+// *      schema:
+// *          registerinfo:
+// *              type: object
+// *              properties:
+// *                  username:
+// *                      type: string
+// *                  password:
+// *                      type: string
+// *                  name:
+// *                      type: string
+// * 
+// *          User:
+// *              type: object
+// *              properties:
+// *                  username:
+// *                      type: string
+// *                  password:
+// *                      type: string
+// *                  name:
+// *                      type: string 
+// *                  role:
+// *                      type: string
+// *                  visitor_id:
+// *                      type: string
+// *                      format: uuid
+// *                  login_status:
+// *                      type: boolean
+// */
 
 //admin create new host account
 // authenticatedhost to see all created visitor
