@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon server.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
@@ -15,7 +15,7 @@
   "name": "benr3433_is",
   "description": "Information Security",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "app.js",
   "author": "",
   "license": "ISC",
   "keywords": [],
