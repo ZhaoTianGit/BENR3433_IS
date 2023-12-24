@@ -3,7 +3,6 @@ const express = require('express')
 const app = express()
 const port = process.env.PORT || 3000;
 const mongoose = require('mongoose');
-//const adminRouter = require('./route/admin');
 const jwt = require('jsonwebtoken');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
@@ -38,10 +37,10 @@ const options = {
        version: '1.0.0',
      },
      tags:[
-      { name: 'default', description: 'Default endpoints' },
-      { name: 'Admin', description: 'Admin API' },
+      { name: 'Login', description: 'Login endpoints' },
+      { name: 'User', description: 'User API' },
       { name: 'Host', description: 'Host API' },
-      { name: 'User', description: 'User API' }
+      { name: 'Admin', description: 'Admin API' }
     ],
     components: {
       securitySchemes: {
@@ -68,31 +67,34 @@ const options = {
  app.use('/swagger', swaggerUi.serve, swaggerUi.setup(openapiSpecification));
 
  
- //test swagger
- /**
-  * @swagger
-  * /:
-  *  get:
-  *      summary: This api is for testing
-  *      description: This api is used for testing
- *      responses:
- *          200:
- *              description: to test get api
- */
-app.get('/', (req, res) => {
-  res.send('Hello World! zt')
-})
+//  //hell0 world swagger
+// /**
+// * @swagger
+// * /:
+// *  get:
+// *      tags: [Test]
+// *      summary: This api is for testing
+// *      description: This api is used for testing
+// *      responses:
+// *          200:
+// *              description: to test get api
+// */
+
+// //hello world function
+// app.get('/', (req, res) => {
+//   res.send('Hello World! zt')
+// })
 
 //admin routes
 //app.use('/admin',adminRouter);
 
 //register swagger
 /**
- * @swagger
+* @swagger
 * /register:
 *  post:
-*      summary: registration for new user
 *      tags: [User]
+*      summary: registration for new user
 *      description: this api fetch data from mongodb
 *      requestBody:
 *          required: true
@@ -124,7 +126,7 @@ app.get('/', (req, res) => {
 *                             $ref: '#components/schema/errormessage'
 */
 
-//register new user
+//register function
 app.post('/register', async(req, res) => {
    try {
        const { username, password, name} = req.body;
@@ -149,6 +151,7 @@ app.post('/register', async(req, res) => {
    }
 })
 
+//register schema
 /**
 * @swagger
 *  components:
@@ -213,7 +216,9 @@ app.post('/register', async(req, res) => {
  * @swagger
  *  /login:
  *    post:
+ *      tags: [User]
  *      summary: Login for users
+ *      description: this api fetch data from mongodb
  *      requestBody:
  *        required: true
  *        content:
@@ -244,10 +249,25 @@ app.post('/register', async(req, res) => {
  *                    description: Generated access token for the logged-in user
  *        401:
  *          description: Unauthorized - Wrong password
+ *          content:
+ *            text/plain:
+ *              schema:
+ *                type: string
+ *                example: Unauthorized Wrong password
  *        404:
  *          description: Username not found
+ *          content:
+ *            text/plain:
+ *              schema:
+ *                type: string
+ *                example: Username not found
  *        409:
  *          description: User is already logged in
+ *          content:
+ *            text/plain:
+ *              schema:
+ *                type: string
+ *                example: User is already logged in
  *        500:
  *          description: Internal server error
  *          content:
@@ -257,6 +277,7 @@ app.post('/register', async(req, res) => {
  *                
  */
 
+//login function
 app.post('/login',async(req,res)=>{
   const {username,password}=req.body
   try {
@@ -298,10 +319,12 @@ function authenticateToken(req, res, next) {
   })
 }
 
+//show jwt swagger
 /**
  * @swagger
  *  /showjwt:
  *    get:
+ *      tags: [Login]
  *      summary: Display user information from JWT token
  *      security:
  *        - Authorization: []
@@ -317,11 +340,13 @@ function authenticateToken(req, res, next) {
  *          description: Unauthorized - Invalid or missing token
  *          
  */
+
 //test jwt
 app.get('/showjwt',authenticateToken,(req,res)=>{
   res.send(req.user)
 })
 
+//test schema
 /**
  * @swagger
  *  components:
@@ -382,6 +407,248 @@ app.get('/showjwt',authenticateToken,(req,res)=>{
  *                  login_status:
  *                      type: boolean
  */
+
+//logout swagger
+/**
+* @swagger
+*  /logout:
+*   post:
+*      tags: [User]
+*      description: This api is used for logout
+*      summary: Logout for users
+*      security:
+*        - Authorization: []
+*      responses:
+*        200:
+*          description: Successful logout
+*          content:
+*            application/json:
+*              schema:
+*                type: object
+*                properties:
+*                  username:
+*                    type: string
+*                    description: Username of the logged-out user
+*                  message:
+*                    type: string
+*                    description: Logout successful message
+*        401:
+*          description: Unauthorized - Invalid or missing token
+*        500:
+*          description: Internal server error
+*          content:
+*            application/json:
+*              schema:
+*                 $ref: '#components/schema/errormessage'
+*                
+*/
+
+//logout function
+app.post('/logout',authenticateToken,async(req,res)=>{
+  try {
+    await User.updateOne({username:req.user.username},{$set:{login_status:false}})
+    res.json({username:req.user.username,message:"logout successful"})
+  } catch (error) {
+    console.log(error.message);
+        res.status(500).json({message: error.message})
+  }
+})
+
+//logout schema
+/**
+* @swagger
+*  components:
+*       schema:
+*          registerinfo:
+*              type: object
+*              properties:
+*                  username:
+*                      type: string
+*                  password:
+*                      type: string
+*                  name:
+*                      type: string
+* 
+* 
+*          registersuccessful:
+*              type: object
+*              properties:
+*                  username:
+*                      type: string
+*                  name:
+*                      type: string
+*                  message:
+*                      type: string
+*                      description: Additional message
+* 
+*          errormessage:
+*              type: object
+*              properties:
+*                message:
+*                  type: string
+*                  example: Internal server error occurred 
+* 
+*          jwtinfo:
+*            type: object
+*            properties:
+*              username:
+*                type: string
+*              user_id: 
+*                type: string
+*              role:
+*                type: string
+* 
+*          User:
+*              type: object
+*              properties:
+*                  username:
+*                      type: string 
+*                  password:
+*                      type: string
+*                  name:
+*                      type: string 
+*                  role:
+*                      type: string
+*                  visitor_id:
+*                      type: string
+*                      format: uuid
+*                  login_status:
+*                      type: boolean
+*/
+
+//create visitor swagger
+ /**
+ * @swagger
+ *  /createvisitor:
+ *    post:
+ *      summary: Create visitor
+ *      description: This api is used for creating visitor
+ *      tags: [User]
+ *      security:
+ *        - Authorization: []
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *               type: object
+ *               properties:
+ *                 name:
+ *                  type: string
+ *                 phoneNumber:
+ *                  type: number
+ *      responses:
+ *        200:
+ *          description: Successful creation of visitor
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  visitor:
+ *                    $ref: '#components/schema/visitor'
+ *                  message:
+ *                    type: string
+ *                    description: Creation successful message
+ *        401:
+ *          description: Unauthorized - Invalid or missing token
+ *        500:
+ *          description: Internal server error
+ *          content:
+ *            application/json:
+ *              schema:
+ *                 $ref: '#components/schema/errormessage'
+ *                
+ */
+
+//create visitor function
+app.post('/createvisitor',authenticateToken,async(req,res)=>{
+  try {
+    const {name,phoneNumber}=req.body
+    const request ={
+      name: name,
+      phoneNumber: phoneNumber
+    }
+    const visitor = await Visitor.create(request)
+    await User.updateOne({username:req.user.username},{$set:{visitor_id:visitor._id}})
+    res.json({visitor:visitor,message:"visitor created successfully"})
+  } catch (error) {
+    console.log(error.message);
+        res.status(500).json({message: error.message})
+  }
+})
+
+//create visitor schema
+/**
+ * @swagger
+ *  components:
+ *        schema:
+ *            visitor:
+ *                type: object
+ *            properties:
+ *                name:
+ *                type: string
+ *            phoneNumber:
+ *                type: number
+ *            _id:
+ *                type: string
+ *                format: uuid
+ *            createdAt:
+ *                type: string
+ *                format: date-time
+ *            updatedAt:
+ *                type: string
+ *                format: date-time
+ */ 
+ 
+//create pass swagger
+/**
+ * @swagger
+ *  /createpass:
+ *    post:
+ *      tags: [Users]
+ *      description: This api is used for creating visitor pass
+ *      summary: Create visitor pass
+ *      security:
+ *        - Authorization: []
+ *      requestBody:
+ *          required: true
+ *          content:
+ *            application/json:
+ *              schema:
+ *                 type: object
+ *                 properties:
+ *                    purposeOfVisit:
+ *                      type: string
+ *                    phoneNumber:
+ *                      type: number
+ *      responses:
+ *        200:
+ *          description: Successful creation of visitor pass
+ *          content:
+ *            application/json:
+ *              schema:
+ *                  type: object
+ *                  properties:
+ *                    vpass:
+ *                      $ref: '#components/schema/vpass'
+ *                  message:
+ *                    type: string
+ *                    description: Creation successful message
+ *        401:
+ *          description: Unauthorized - Invalid or missing token
+ *        500:
+ *          description: Internal server error
+ *          content:
+ *            application/json:
+ *              schema:
+ *                 $ref: '#components/schema/errormessage'
+ * 
+ */
+
+
+
+
 
 
 //admin create new host account
