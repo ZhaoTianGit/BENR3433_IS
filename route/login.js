@@ -90,8 +90,8 @@
 // login.js (route)
 const express = require('express');
 const router = express.Router();
-const loginController = require('../controllers/login');
-const admin = require('../controllers/admin');
+const loginController = require('../controller/login');
+const admin = require('../controller/admin');
 
 /**
  * @swagger

@@ -1,4 +1,4 @@
-// controllers/host.js
+// controller/host.js
 const { User, Visitor } = require('../model/user');
 
 module.exports.getWelcomeMessage = async (req, res) => {

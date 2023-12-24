@@ -34,7 +34,6 @@ module.exports.login = async(req, res) =>{
         redirectLink = `/admin`;
     }
 
-
     console.log("JWT:",token);
     res.json({
         token,
@@ -44,7 +43,6 @@ module.exports.login = async(req, res) =>{
         Authorization: token,
         "Content-Type": "application/json",
       });
-      
       
   } catch (error) {
     console.error('Error during login:', error);

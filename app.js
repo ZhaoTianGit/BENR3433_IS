@@ -55,8 +55,8 @@ const options = {
       },
      servers:[
        {
-           url: 'https://isbenr3433.azurewebsites.net/'
-           //url: 'http://localhost:3000'
+          //  url: 'https://isbenr3433.azurewebsites.net/'
+          url: 'http://localhost:3000'
        }
      ]
    },
@@ -85,7 +85,7 @@ const options = {
 //   res.send('Hello World! zt')
 // })
 
-//admin routes
+//admin route
 //app.use('/admin',adminRouter);
 
 //register swagger
@@ -281,14 +281,14 @@ app.post('/register', async(req, res) => {
 app.post('/login',async(req,res)=>{
   const {username,password}=req.body
   try {
-    const b = await User.findOne({username:req.body.username})
-    if(b==null){
+    const user = await User.findOne({username:req.body.username})
+    if(user==null){
       res.status(404).send('Username not found');
     }else{
-      if(b.login_status==true){
+      if(user.login_status==true){
         res.status(409).send('User is already logged in');
       }else{
-        const c = req.body.password === b.password;      
+        const c = req.body.password === user.password;      
         if(!c){
           res.status(401).send('Unauthorized: Wrong password');
         }else{
@@ -304,6 +304,224 @@ app.post('/login',async(req,res)=>{
         res.status(500).json({message: error.message})
   }
 })
+
+//login swagger2
+/**
+* @swagger
+* /login2:
+*  post:
+*    tags: [Login]
+*    summary: Login for admin or host
+*    description: Once login authenticate a user and generate a JWT token
+*    requestBody:
+*      required: true
+*      content: 
+*          application/json:
+*              schema:
+*                  type: object
+*                  properties:
+*                      username:
+*                          type: string
+*                      password:
+*                          type: string
+*    responses:
+*      200:   
+*          description: Successful login
+*          schema: 
+*              type: object    
+*              properties:
+*                  token: 
+*                      type: string
+*                      description: JWT token for authentication
+*                  category: 
+*                      type: string
+*                      description: User category (host or admin)
+*                  redirectLink:
+*                      type: string
+*                      description: Redirect link based on user category
+*                  GET:
+*                      type: string
+*                      description: URL to be used for redirection
+*                  Authorization:
+*                      type: string
+*                      description: JWT token for authorization
+*                  Content-Type: 
+*                      type: string
+*                      description: Response content type
+*      401:
+*          description: Invalid credentials
+*          schema: 
+*              type: object
+*              properties:
+*                  error:  
+*                      type: string
+*                      description: Error message
+*                      example: Invalid credentials
+*      404:
+*          description: Username not found
+*          schema:
+*              type: object
+*              properties:
+*                  error:
+*                      type: string
+*                      description: Error message
+*                      example: Username not found
+*      409:
+*          description: User is already logged in
+*          schema:
+*              type: object
+*              properties:
+*                  error:
+*                      type: string
+*                      description: Error message
+*                      example: User is already logged in
+*      500: 
+*          description: Internal Server Error
+*          schema: 
+*              type: object
+*              properties: 
+*                  error:
+*                      type: string
+*                      description: Error message
+*                      example: Internal Server Error
+*               
+*/
+
+//login function2
+app.post('/login2',async(req,res)=>{
+  const {username,password}=req.body
+  try {
+    const {username,password}=req.body
+    const user = await User.findOne({username:req.body.username})
+
+    if(!user) {
+      res.status(401).json({error: 'Invalid credentials'})
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if(!isPasswordValid) {
+      res.status(401).json({error: 'Invalid credentials'})
+    }
+
+    const token = jwt.sign({userId: user._id, category: user.category}, 'vms2', {
+      expiresIn: '1h',
+    });
+
+    let redirectLink;
+    if(user.category === 'host') {
+      redirectLink = `/host/${user._id}`;
+    } else if(user.category === 'admin') {
+      redirectLink = `/admin`;
+    } else {
+      redirectLink = `/`;
+    }
+
+    console.log("JWT:",token);
+    res.json({
+      token,
+      category: user.category,
+      redirectLink,
+      "GET": `http://localhost:3000${redirectLink}`,
+      Authorization: token,
+      "Content-Type": "application/json",
+    });
+
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+
+  }
+})  
+
+//login schema2
+/**
+ * components:
+ *   schemas:
+ *     Visit:
+ *       type: object
+ *       required:
+ *         - purposeOfVisit
+ *         - phoneNumber
+ *       properties:
+ *         purposeOfVisit:
+ *           type: string
+ *           description: The purpose of the visit
+ *         phoneNumber:
+ *           type: number
+ *           description: The phone number of the visitor
+ *         visitTime:
+ *           type: string
+ *           format: date-time
+ *           description: The time of the visit
+ *       example:
+ *         purposeOfVisit: Meeting
+ *         phoneNumber: 1234567890
+ *
+ *     Visitor:
+ *       type: object
+ *       required:
+ *         - name
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: The name of the visitor
+ *         visits:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Visit'
+ *       example:
+ *         name: John Doe
+ *         visits:
+ *           - purposeOfVisit: Meeting
+ *             phoneNumber: 1234567890
+ *             visitTime: '2023-01-01T12:00:00Z'
+ *
+ *     User:
+ *       type: object
+ *       required:
+ *         - username
+ *         - password
+ *         - email
+ *         - phoneNumber
+ *         - category
+ *       properties:
+ *         username:
+ *           type: string
+ *           description: The username of the user
+ *         password:
+ *           type: string
+ *           description: The password of the user
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: The email address of the user
+ *         phoneNumber:
+ *           type: number
+ *           description: The phone number of the user
+ *         category:
+ *           type: string
+ *           enum:
+ *             - host
+ *             - admin
+ *           description: The category of the user (host or admin)
+ *         visitors:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Visitor'
+ *       example:
+ *         username: user123
+ *         password: password123
+ *         email: user@exa\mple.com
+ *         phoneNumber: 1234567890
+ *         category: host
+ *         visitors:
+ *           - name: John Doe
+ *             visits:
+ *               - purposeOfVisit: Meeting
+ *                 phoneNumber: 1234567890
+ *                 visitTime: '2023-01-01T12:00:00Z'
+ */
 
 //middleware
 function authenticateToken(req, res, next) {
