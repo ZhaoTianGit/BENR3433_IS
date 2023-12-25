@@ -1,0 +1,97 @@
+/**
+ * @swagger
+ *  components:
+ *      schema:
+ *          registerinfo:
+ *              type: object
+ *              properties:
+ *                  username:
+ *                      type: string
+ *                  password: 
+ *                      type: string
+ *                  name:
+ *                      type: string
+ * 
+ *          registersuccessful:
+ *              type: object
+ *              properties:
+ *                  username:
+ *                      type: string
+ *                  name:
+ *                      type: string
+ *                  message:
+ *                      type: string
+ *                      description: Additional message
+ * 
+ *          errormessage:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *                  example: Internal server error occurred
+ * 
+ *          jwtinfo:
+ *            type: object
+ *            properties:
+ *              username:
+ *                type: string
+ *              user_id: 
+ *                type: string
+ *              role:
+ *                type: string
+ * 
+ *          User:
+ *              type: object
+ *              properties:
+ *                  username:
+ *                      type: string
+ *                  password:
+ *                      type: string 
+ *                  name:
+ *                      type: string 
+ *                  role:
+ *                      type: string 
+ *                  visitor_id:
+ *                      type: string 
+ *                      format: uuid
+ *                  login_status:
+ *                      type: boolean
+ * 
+ *          visitor:
+ *              type: object
+ *              properties:
+ *                  name:
+ *                      type: string
+ *                  phoneNumber:
+ *                      type: string
+ * 
+ *          vpass:
+ *              type: object
+ *              properties:
+ *                  purposeOfVisit:
+ *                      type: string
+ *                  phoneNumber:
+ *                      type: string
+ */
+
+//show jwt swagger
+/**
+ * @swagger
+ *  /showjwt:
+ *    get:
+ *      tags: [Login]
+ *      summary: Display user information from JWT token
+ *      security:
+ *        - Authorization: []
+ *      responses:
+ *        200:
+ *          description: Successful retrieval of user information
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#components/schema/jwtinfo'
+ *                description: User information retrieved from JWT token
+ *        401:
+ *          description: Unauthorized - Invalid or missing token
+ *          
+ */

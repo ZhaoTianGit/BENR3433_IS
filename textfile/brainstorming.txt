@@ -1,0 +1,210 @@
+npm install express swagger-jsdoc swagger-ui-express mongoose
+
+// Step 1: Initialize a new Node.js project and install the necessary dependencies.
+// You've already done this step with the command you provided.
+
+// Step 2: Set up an Express server.
+const express = require('express');
+const app = express();
+app.use(express.json());
+
+// Step 3: Connect to a MongoDB database using Mongoose.
+const mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/visitor_management', { useNewUrlParser: true, useUnifiedTopology: true });
+
+// Step 4: Define a Mongoose schema and model for the visitor.
+const visitorSchema = new mongoose.Schema({
+    name: String,
+    checkInTime: Date,
+    checkOutTime: Date,
+});
+const Visitor = mongoose.model('Visitor', visitorSchema);
+
+// Step 5: Create routes for creating, reading, updating, and deleting visitors.
+app.post('/visitors', async (req, res) => {
+    const visitor = new Visitor(req.body);
+    const result = await visitor.save();
+    res.send(result);
+});
+
+app.get('/visitors', async (req, res) => {
+    const visitors = await Visitor.find();
+    res.send(visitors);
+});
+
+app.get('/visitors/:id', async (req, res) => {
+    const visitor = await Visitor.findById(req.params.id);
+    res.send(visitor);
+});
+
+app.put('/visitors/:id', async (req, res) => {
+    const visitor = await Visitor.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.send(visitor);
+});
+
+app.delete('/visitors/:id', async (req, res) => {
+    const visitor = await Visitor.findByIdAndDelete(req.params.id);
+    res.send(visitor);
+});
+
+// Step 6: Set up Swagger to document the API.
+const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
+
+const swaggerOptions = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Visitor Management API',
+            version: '1.0.0',
+        },
+    },
+    apis: ['app.js'], // files containing annotations as above
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+// Start the server
+const port = process.env.PORT || 3000;
+app.listen(port, () => console.log(`Listening on port ${port}...`));
+
+// Step 1: Define Mongoose schemas and models for the admin, host, and visitor.
+const adminSchema = new mongoose.Schema({
+    name: String,
+    email: String,
+    password: String, // Remember to hash passwords in a real application
+});
+const Admin = mongoose.model('Admin', adminSchema);
+
+const hostSchema = new mongoose.Schema({
+    name: String,
+    email: String,
+});
+const Host = mongoose.model('Host', hostSchema);
+
+// We already have a visitor schema and model from the previous code.
+
+// Step 2: Create routes for creating, reading, updating, and deleting admins, hosts, and visitors.
+
+// Admin routes
+app.post('/admins', async (req, res) => {
+    const admin = new Admin(req.body);
+    const result = await admin.save();
+    res.send(result);
+});
+
+app.get('/admins', async (req, res) => {
+    const admins = await Admin.find();
+    res.send(admins);
+});
+
+// Host routes
+app.post('/hosts', async (req, res) => {
+    const host = new Host(req.body);
+    const result = await host.save();
+    res.send(result);
+});
+
+app.get('/hosts', async (req, res) => {
+    const hosts = await Host.find();
+    res.send(hosts);
+});
+
+// Visitor routes were already defined in the previous code.
+
+/**
+ * @swagger
+ * /admins:
+ *   post:
+ *     summary: Create a new admin
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: The created admin
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Admin'
+ */
+app.post('/admins', async (req, res) => {
+    const admin = new Admin(req.body);
+    const result = await admin.save();
+    res.send(result);
+});
+
+/**
+ * @swagger
+ * /admins:
+ *   get:
+ *     summary: Retrieve a list of admins
+ *     responses:
+ *       200:
+ *         description: A list of admins
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Admin'
+ */
+app.get('/admins', async (req, res) => {
+    const admins = await Admin.find();
+    res.send(admins);
+});
+
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+    try {
+        const user = await User.findOne({ username });
+        if (user == null) {
+            return res.status(404).send('Username not found');
+        } else {
+            if (user.login_status == true) {
+                return res.status(409).send('User is already logged in');
+            } else {
+                const isPasswordCorrect = password === user.password;
+                if (!isPasswordCorrect) {
+                    return res.status(401).send('Unauthorized: Wrong password');
+                } else {
+                    await User.updateOne({ username }, { $set: { login_status: true } });
+                    const loggedInUser = await User.findOne({ username });
+                    const accessToken = jwt.sign(
+                        { username: loggedInUser.username, user_id: loggedInUser._id, role: loggedInUser.role },
+                        process.env.JWT_SECRET
+                    );
+
+                    let message = 'Login successful';
+                    if (loggedInUser.role === 'admin') {
+                        message = 'Admin logged in successfully';
+                    } else if (loggedInUser.role === 'host') {
+                        message = 'Host logged in successfully';
+                    }
+
+                    return res.json({
+                        username: loggedInUser.username,
+                        message,
+                        accesstoken: accessToken,
+                        _id: loggedInUser._id,
+                        redirectLink: `/${loggedInUser.role}/${loggedInUser._id}`
+                    });
+                }
+            }
+        }
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).json({ message: error.message });
+    }
+});

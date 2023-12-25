@@ -144,6 +144,64 @@ app.post('/register', async(req, res) => {
    }
 })
 
+//register schema
+/**
+* @swagger
+*  components:
+*      schema:
+*          registerinfo:
+*              type: object
+*              properties:
+*                  username:
+*                      type: string
+*                  password: 
+*                      type: string
+*          registersuccessful:
+*              type: object
+*              properties:
+*                  username:
+*                      type: string
+*                  name:
+*                      type: string
+*                  message:
+*                      type: string
+*                      description: Additional message
+* 
+*          errormessage:
+*              type: object
+*              properties:
+*                message:
+*                  type: string
+*                  example: Internal server error occurred
+* 
+*          jwtinfo:
+*            type: object
+*            properties:
+*              username:
+*                type: string
+*              user_id: 
+*                type: string
+*              role:
+*                type: string
+* 
+*          User:
+*              type: object
+*              properties:
+*                  username:
+*                      type: string
+*                  password:
+*                      type: string 
+*                  name:
+*                      type: string 
+*                  role:
+*                      type: string 
+*                  visitor_id:
+*                      type: string 
+*                      format: uuid
+*                  login_status:
+*                      type: boolean
+*/
+
 //login swagger
 /**
  * @swagger
@@ -497,6 +555,68 @@ app.get('/showjwt',authenticateToken,(req,res)=>{
   res.send(req.user)
 })
 
+//test schema
+/**
+ * @swagger
+ *  components:
+ *      schema:
+ *          registerinfo:
+ *              type: object
+ *              properties:
+ *                  username:
+ *                      type: string
+ *                  password:
+ *                      type: string
+ *                  name:
+ *                      type: string
+ * 
+ * 
+ *          registersuccessful:
+ *              type: object
+ *              properties:
+ *                  username:
+ *                      type: string
+ *                  name:
+ *                      type: string
+ *                  message:
+ *                      type: string
+ *                      description: Additional message
+ * 
+ *          errormessage:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *                  example: Internal server error occurred
+ * 
+ *          jwtinfo:
+ *            type: object
+ *            properties:
+ *              username:
+ *                type: string
+ *              user_id: 
+ *                type: string
+ *              role:
+ *                type: string
+ * 
+ *          User:
+ *              type: object
+ *              properties:
+ *                  username:
+ *                      type: string
+ *                  password:
+ *                      type: string
+ *                  name:
+ *                      type: string 
+ *                  role:
+ *                      type: string
+ *                  visitor_id:
+ *                      type: string
+ *                      format: uuid
+ *                  login_status:
+ *                      type: boolean
+ */
+
 //logout swagger
 /**
 * @swagger
@@ -542,6 +662,68 @@ app.post('/logout',authenticateToken,async(req,res)=>{
         res.status(500).json({message: error.message})
   }
 })
+
+//logout schema
+/**
+* @swagger
+*  components:
+*       schema:
+*          registerinfo:
+*              type: object
+*              properties:
+*                  username:
+*                      type: string
+*                  password:
+*                      type: string
+*                  name:
+*                      type: string
+* 
+* 
+*          registersuccessful:
+*              type: object
+*              properties:
+*                  username:
+*                      type: string
+*                  name:
+*                      type: string
+*                  message:
+*                      type: string
+*                      description: Additional message
+* 
+*          errormessage:
+*              type: object
+*              properties:
+*                message:
+*                  type: string
+*                  example: Internal server error occurred 
+* 
+*          jwtinfo:
+*            type: object
+*            properties:
+*              username:
+*                type: string
+*              user_id: 
+*                type: string
+*              role:
+*                type: string
+* 
+*          User:
+*              type: object
+*              properties:
+*                  username:
+*                      type: string 
+*                  password:
+*                      type: string
+*                  name:
+*                      type: string 
+*                  role:
+*                      type: string
+*                  visitor_id:
+*                      type: string
+*                      format: uuid
+*                  login_status:
+*                      type: boolean
+*/
 
 //create visitor swagger
  /**
@@ -603,6 +785,20 @@ app.post('/createVisitor',authenticateToken,async(req,res)=>{
         res.status(500).json({message: error.message})
   }
 })
+
+//create visitor schema
+/**
+ * @swagger
+ *  components:
+ *        schema:
+ *            visitor:
+ *                type: object
+ *                properties:
+ *                    name:
+ *                      type: string
+ *                    phoneNumber:
+ *                      type: string
+ */ 
  
 //create pass swagger
 /**
@@ -666,83 +862,22 @@ app.post('/createpass',authenticateToken,async(req,res)=>{
   }
 })
 
-
-// schema
+//create pass schema
 /**
  * @swagger
  *  components:
- *      schema:
- *          registerinfo:
- *              type: object
- *              properties:
- *                  username:
- *                      type: string
- *                  password: 
- *                      type: string
- *                  name:
- *                      type: string
- * 
- *          registersuccessful:
- *              type: object
- *              properties:
- *                  username:
- *                      type: string
- *                  name:
- *                      type: string
- *                  message:
- *                      type: string
- *                      description: Additional message
- * 
- *          errormessage:
- *              type: object
- *              properties:
- *                message:
- *                  type: string
- *                  example: Internal server error occurred
- * 
- *          jwtinfo:
- *            type: object
- *            properties:
- *              username:
- *                type: string
- *              user_id: 
- *                type: string
- *              role:
- *                type: string
- * 
- *          User:
- *              type: object
- *              properties:
- *                  username:
- *                      type: string
- *                  password:
- *                      type: string 
- *                  name:
- *                      type: string 
- *                  role:
- *                      type: string 
- *                  visitor_id:
- *                      type: string 
- *                      format: uuid
- *                  login_status:
- *                      type: boolean
- * 
- *          visitor:
- *              type: object
- *              properties:
- *                  name:
- *                      type: string
- *                  phoneNumber:
- *                      type: string
- * 
- *          vpass:
- *              type: object
- *              properties:
+ *        schema:
+ *            vpass:
+ *                type: object
+ *                properties:
  *                  purposeOfVisit:
- *                      type: string
+ *                    type: string
  *                  phoneNumber:
- *                      type: string
- */
+ *                    type: string
+ */ 
+
+
+
 
 
 //admin create new host account
