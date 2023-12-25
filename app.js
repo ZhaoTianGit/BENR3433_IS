@@ -53,12 +53,6 @@ const options = {
           }
         }
       },
-     servers:[
-       {
-          //  url: 'https://isbenr3433.azurewebsites.net/'
-          url: 'http://localhost:3000'
-       }
-     ]
    },
    apis: ['./app.js'], // files containing annotations as above
  };
@@ -295,7 +289,7 @@ app.post('/login',async(req,res)=>{
         await User.updateOne({username:req.body.username},{$set:{login_status:true}})
         const login_user= await User.findOne({username:req.body.username})
         access_token=jwt.sign({username:login_user.username,user_id:login_user._id,role:login_user.role},process.env.JWT_SECRET)
-        res.json({username:login_user.username,message:"login successful",accesstoken: access_token})
+        res.json({username:login_user.username,message:"login successful",accesstoken: access_token,_id:login_user._id,redirectLink:`/${login_user.role}/${login_user._id}`})
       }
       }
       }}
@@ -751,23 +745,22 @@ app.post('/logout',authenticateToken,async(req,res)=>{
  *            schema:
  *               type: object
  *               properties:
- *                 name:
- *                  type: string
- *                 phoneNumber:
- *                  type: number
+ *                  name:
+ *                    type: string
+ *                  phoneNumber:
+ *                    type: string
+ *                  purposeOfVisit:
+ *                    type: string
  *      responses:
  *        200:
  *          description: Successful creation of visitor
+ *        400:
+ *          description: Bad request
  *          content:
- *            application/json:
- *              schema:
- *                type: object
- *                properties:
- *                  visitor:
- *                    $ref: '#components/schema/visitor'
- *                  message:
- *                    type: string
- *                    description: Creation successful message
+ *           text/plain:
+ *            schema:
+ *              type: string
+ *              example: Bad request
  *        401:
  *          description: Unauthorized - Invalid or missing token
  *        500:
@@ -780,12 +773,12 @@ app.post('/logout',authenticateToken,async(req,res)=>{
  */
 
 //create visitor function
-app.post('/createvisitor',authenticateToken,async(req,res)=>{
+app.post('/createVisitor',authenticateToken,async(req,res)=>{
   try {
     const {name,phoneNumber}=req.body
     const request ={
       name: name,
-      phoneNumber: phoneNumber
+      phoneNumber: phoneNumber,
     }
     const visitor = await Visitor.create(request)
     await User.updateOne({username:req.user.username},{$set:{visitor_id:visitor._id}})
@@ -803,20 +796,11 @@ app.post('/createvisitor',authenticateToken,async(req,res)=>{
  *        schema:
  *            visitor:
  *                type: object
- *            properties:
- *                name:
- *                type: string
- *            phoneNumber:
- *                type: number
- *            _id:
- *                type: string
- *                format: uuid
- *            createdAt:
- *                type: string
- *                format: date-time
- *            updatedAt:
- *                type: string
- *                format: date-time
+ *                properties:
+ *                    name:
+ *                      type: string
+ *                    phoneNumber:
+ *                      type: string
  */ 
  
 //create pass swagger
@@ -839,7 +823,7 @@ app.post('/createvisitor',authenticateToken,async(req,res)=>{
  *                    purposeOfVisit:
  *                      type: string
  *                    phoneNumber:
- *                      type: number
+ *                      type: string
  *      responses:
  *        200:
  *          description: Successful creation of visitor pass
@@ -850,9 +834,9 @@ app.post('/createvisitor',authenticateToken,async(req,res)=>{
  *                  properties:
  *                    vpass:
  *                      $ref: '#components/schema/vpass'
- *                  message:
- *                    type: string
- *                    description: Creation successful message
+ *                      message:
+ *                        type: string
+ *                        description: Creation successful message
  *        401:
  *          description: Unauthorized - Invalid or missing token
  *        500:
@@ -888,20 +872,11 @@ app.post('/createpass',authenticateToken,async(req,res)=>{
  *        schema:
  *            vpass:
  *                type: object
- *            properties:
- *                purposeOfVisit:
- *                type: string
- *            phoneNumber:
- *                type: number
- *            _id:
- *                type: string
- *                format: uuid
- *            createdAt:
- *                type: string
- *                format: date-time
- *            updatedAt:
- *                type: string
- *                format: date-time
+ *                properties:
+ *                  purposeOfVisit:
+ *                    type: string
+ *                  phoneNumber:
+ *                    type: string
  */ 
 
 

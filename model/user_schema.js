@@ -16,6 +16,7 @@ const userSchema = mongoose.Schema(
         },
         role:{
             type: String,
+            enum: ['host','admin'],
             required: true
         },
         visitor_id:{
@@ -23,7 +24,7 @@ const userSchema = mongoose.Schema(
         },
         login_status:{
             type: Boolean
-        }
+        },
     },
     { versionKey: false }
 )

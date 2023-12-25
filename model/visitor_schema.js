@@ -6,15 +6,7 @@ const visitorSchema = mongoose.Schema(
             type: String,
             required: true
         },
-        gender:{
-            type: String,
-            required: true
-        },
-        age:{
-            type: Number,
-            required: true
-        },
-        license_number:{
+        phoneNumber:{
             type: String,
             required: true
         },
